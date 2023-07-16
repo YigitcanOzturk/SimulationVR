@@ -15,6 +15,14 @@
             <meta-data android:name="unityplayer.UnityActivity" android:value="true" />
             <meta-data android:name="com.oculus.vr.focusaware" android:value="false" />
         </activity>
+        <receiver android:name=".BroadcastReceiver"
+            android:permission="android.permission.RECEIVE_BOOT_COMPLETED" android:enabled="true" android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </receiver>
         <meta-data android:name="unity.tango-enable" android:value="True" />
         <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="true" />
         <meta-data android:name="unity.build-id" android:value="b5da1b75-5713-4261-af82-34866d63a4b6" />
