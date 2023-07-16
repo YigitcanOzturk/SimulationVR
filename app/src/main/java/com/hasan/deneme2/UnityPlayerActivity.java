@@ -2,10 +2,16 @@ package com.hasan.deneme2;
 
 import com.unity3d.player.*;
 import android.app.Activity;
+import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.PixelFormat;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.UserManager;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
@@ -13,7 +19,12 @@ import android.view.Window;
 import android.view.WindowManager;
 
 public class UnityPlayerActivity extends Activity
+
 {
+    private static final String KIOSK_PACKAGE = "com.hasan.deneme2";
+    public static Boolean isLockTaskModeRunning = false;
+    private static final String[] APP_PACKAGES = {KIOSK_PACKAGE};
+    Activity context;
     protected UnityPlayer mUnityPlayer; // don't change the name of this variable; referenced from native code
 
     // Override this in your custom UnityPlayerActivity to tweak the command line arguments passed to the Unity Android Player
@@ -33,9 +44,39 @@ public class UnityPlayerActivity extends Activity
     {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         super.onCreate(savedInstanceState);
-
+        context = UnityPlayerActivity.this;
         String cmdLine = updateUnityCommandLineArguments(getIntent().getStringExtra("unity"));
         getIntent().putExtra("unity", cmdLine);
+
+        try {
+            DevicePolicyManager dpm =
+                    (DevicePolicyManager) context.getSystemService(Context.DEVICE_POLICY_SERVICE);
+            ComponentName adminName = new ComponentName(this, AdminManager.class);
+            dpm.setLockTaskPackages(adminName, APP_PACKAGES);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                dpm.setLockTaskFeatures(adminName,
+                        DevicePolicyManager.LOCK_TASK_FEATURE_HOME |
+                                DevicePolicyManager.LOCK_TASK_FEATURE_OVERVIEW);
+            }
+
+            if (dpm.isLockTaskPermitted(context.getPackageName())) {
+                startLockTask();
+                dpm.addUserRestriction(adminName, UserManager.DISALLOW_CREATE_WINDOWS);
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+        ActivityManager activityManager = (ActivityManager)
+                context.getSystemService(Context.ACTIVITY_SERVICE);
+
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            isLockTaskModeRunning = activityManager.getLockTaskModeState()
+                    == ActivityManager.LOCK_TASK_MODE_LOCKED;
+        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // Deprecated in API level 23.
+            isLockTaskModeRunning = activityManager.isInLockTaskMode();
+        }
 
         mUnityPlayer = new UnityPlayer(this);
         setContentView(mUnityPlayer);

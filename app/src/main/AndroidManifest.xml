@@ -23,6 +23,18 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </receiver>
+
+        <receiver android:name=".AdminManager"
+            android:permission="android.permission.BIND_DEVICE_ADMIN"
+            android:exported="true">
+            <meta-data android:name="android.app.device_admin"
+                android:resource="@xml/device_admin_receiver" />
+            <intent-filter>
+                <action android:name="android.app.action.DEVICE_ADMIN_DISABLED" />
+                <action android:name="android.app.action.DEVICE_ADMIN_ENABLED" />
+            </intent-filter>
+        </receiver>
+
         <meta-data android:name="unity.tango-enable" android:value="True" />
         <meta-data android:name="unityplayer.SkipPermissionsDialog" android:value="true" />
         <meta-data android:name="unity.build-id" android:value="b5da1b75-5713-4261-af82-34866d63a4b6" />
