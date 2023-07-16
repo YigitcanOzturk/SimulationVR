@@ -1,2 +1,2 @@
 # SimulationVR
-Hasan's Simulation Applications for Oculus VR
+Hasan's Simulation Application for Oculus VR
